@@ -1,0 +1,264 @@
+/* ─── CSS VARIABLES — Your teal color palette ─── */
+:root {
+  --primary: #2C7A7B;
+  --primary-dark: #1A535C;
+  --primary-light: #81E6D9;
+  --bg: #F0F9F9;
+  --card: #FFFFFF;
+  --text: #1A3C40;
+  --text-light: #5F8A8B;
+  --accent: #4FD1C5;
+  --border: #B2DFDF;
+  --shadow: 0 2px 12px rgba(44, 122, 123, 0.1);
+}
+
+/* ─── RESET ─── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ─── BASE — Mobile first ─── */
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+/* ─── HEADER ─── */
+header {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  color: white;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 10px;
+}
+
+header p {
+  font-size: 1rem;
+  opacity: 0.85;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* ─── NAVIGATION ─── */
+nav {
+  background-color: var(--primary-dark);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  padding: 12px 20px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  width: 100%;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  transition: background-color 0.2s;
+}
+
+nav a:hover {
+  background-color: var(--primary);
+  color: var(--primary-light);
+}
+
+nav a:last-child {
+  border-bottom: none;
+}
+
+/* ─── MAIN CONTENT ─── */
+main {
+  padding: 24px 16px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* ─── CARDS / SECTIONS ─── */
+section {
+  background-color: var(--card);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+section h2 {
+  color: var(--primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--bg);
+}
+
+/* ─── LIST ─── */
+section ul {
+  list-style: none;
+  padding: 0;
+}
+
+section ul li {
+  padding: 12px 0 12px 28px;
+  border-bottom: 1px solid var(--bg);
+  position: relative;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+section ul li:last-child {
+  border-bottom: none;
+}
+
+section ul li::before {
+  content: "✓";
+  color: var(--accent);
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+/* ─── FORM ─── */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+form label {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+form input[type="text"] {
+  padding: 14px 16px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  font-size: 1rem;
+  color: var(--text);
+  background-color: var(--bg);
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+form input[type="text"]:focus {
+  border-color: var(--primary);
+  background-color: white;
+}
+
+form button {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.2s, transform 0.1s;
+  letter-spacing: 0.3px;
+}
+
+form button:hover {
+  background-color: var(--primary-dark);
+}
+
+form button:active {
+  transform: scale(0.98);
+}
+
+/* ─── FOOTER ─── */
+footer {
+  background-color: var(--primary-dark);
+  color: rgba(255,255,255,0.7);
+  text-align: center;
+  padding: 24px 16px;
+  font-size: 0.9rem;
+  margin-top: 20px;
+}
+
+footer p {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* ─── DESKTOP — screens wider than 768px ─── */
+@media (min-width: 768px) {
+
+  header {
+    padding: 60px 40px;
+  }
+
+  header h1 {
+    font-size: 3rem;
+  }
+
+  header p {
+    font-size: 1.2rem;
+  }
+
+  /* Nav becomes horizontal on desktop */
+  nav {
+    flex-direction: row;
+    justify-content: center;
+    padding: 4px 0;
+  }
+
+  nav a {
+    width: auto;
+    border-bottom: none;
+    border-right: 1px solid rgba(255,255,255,0.1);
+    padding: 14px 24px;
+  }
+
+  nav a:last-child {
+    border-right: none;
+  }
+
+  main {
+    padding: 40px 24px;
+  }
+
+  section {
+    padding: 32px;
+  }
+
+  section h2 {
+    font-size: 1.5rem;
+  }
+
+  form button {
+    width: fit-content;
+    padding: 14px 36px;
+  }
+}
+
+/* ─── LARGE SCREENS — wider than 1024px ─── */
+@media (min-width: 1024px) {
+
+  header h1 {
+    font-size: 3.5rem;
+  }
+
+  main {
+    padding: 48px 32px;
+  }
+}
