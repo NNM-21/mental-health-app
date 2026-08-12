@@ -12,6 +12,11 @@ const pool = new Pool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  // Render's managed Postgres requires SSL. Locally, DB_HOST is 'localhost'
+  // and our local Postgres doesn't need SSL, so we only turn it on when
+  // connecting to a real remote host. rejectUnauthorized: false is the
+  // standard setting for Render's free-tier Postgres self-signed cert chain.
+  ssl: process.env.DB_HOST === 'localhost' ? false : { rejectUnauthorized: false },
 });
 
 // Quick sanity check on startup — fail loudly if the DB isn't reachable,
@@ -25,3 +30,4 @@ pool.query('SELECT NOW()', (err) => {
 });
 
 module.exports = pool;
+
