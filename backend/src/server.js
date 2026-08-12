@@ -6,6 +6,7 @@ const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const forumRoutes = require('./routes/forumRoutes');
+const wellnessRoutes = require('./routes/wellnessRoutes');
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.get('/health', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api', forumRoutes);
+app.use('/api', wellnessRoutes);
 
 // Catch-all for unknown routes
 app.use((req, res) => {

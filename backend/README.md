@@ -156,6 +156,60 @@ curl -X POST http://localhost:3000/api/posts/1/flags \
   for "should this show a warning in the UI", while `flags` is the full
   audit trail moderators actually review.
 
-## What's next (Phase 3)
-Self-assessments (GAD7/PHQ9), score history, resources page, and the doctor
-dashboard using the analytics database.
+## Phase 3: Assessments, Score History, Resources
+
+GAD7 (anxiety) and PHQ9 (depression) — real, clinically validated screening
+questionnaires, each question scored 0-3. Score is the sum of all answers,
+mapped to a standard severity band (minimal/mild/moderate/severe).
+
+### New API Endpoints
+
+| Method | Route | Auth | Description |
+|--------|-------|------|-------------|
+| GET | `/api/assessments` | Any logged-in user | List GAD7/PHQ9 with their questions |
+| POST | `/api/assessments/:type/submit` | Any logged-in user | Submit answers (`type` = GAD7 or PHQ9), get back score + severity |
+| GET | `/api/scores/me` | Any logged-in user | Your own score history, oldest to newest |
+| GET | `/api/analytics/scores` | doctor, admin | Aggregated scores (count/avg/min/max) — **no patient names or IDs, ever** |
+| GET | `/api/resources` | Any logged-in user | List curated videos/articles (optional `?category=anxiety` filter) |
+| POST | `/api/resources` | admin | Add a new resource |
+
+### Example: submit an assessment
+
+```bash
+curl -X POST http://localhost:3000/api/assessments/GAD7/submit \
+  -H "Authorization: Bearer <token>" -H "Content-Type: application/json" \
+  -d '{"answers":[2,2,1,2,1,1,2]}'
+# -> {"score":11,"severity":"moderate", ...}
+```
+
+### Architecture decisions (Phase 3)
+
+- **Why is scoring done server-side, not trusted from the client?**
+  A malicious or buggy client could submit any total it wants. The server
+  always recalculates the score itself from the raw 0-3 answers — the
+  client's job is only to collect answers, never to decide the result.
+- **Why store the raw `answers` array AND the computed `score`?**
+  The score alone can't be re-derived or audited later — if a scoring bug
+  is ever found, having the original answers means old submissions can be
+  re-scored correctly instead of being permanently wrong.
+- **Why does `getAnalytics` deliberately never JOIN to `users.name` or `users.email`?**
+  This is the "privacy by design" principle from Section 3 of the project
+  guide: a doctor's dashboard needs to see trends and volume, never who a
+  specific score belongs to. The query is written so that's structurally
+  impossible, not just a UI choice to hide a column.
+
+**Honest simplification worth naming in an interview:** the project guide's
+original design calls for a fully separate *analytics database* with zero
+PII replicated into it — true physical isolation, so a breach of one
+database can't expose the other. What's built here achieves the same
+privacy *outcome* (no PII ever leaves the `getAnalytics` query) but within
+a single database, which is a reasonable tradeoff for this stage — much
+less deployment complexity, same practical guarantee for now. A production
+version handling real patient data would go further and physically
+separate the analytics database, likely with a scheduled anonymized sync
+job feeding it. Naming this tradeoff, rather than pretending the simpler
+version is the final architecture, is itself a good interview answer.
+
+## What's next (Phase 4)
+Real-time expert chat (Socket.io) and AI-powered content screening
+(Anthropic API) for the forum.
