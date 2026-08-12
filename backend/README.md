@@ -92,6 +92,70 @@ curl http://localhost:3000/api/auth/me \
   concurrent requests. A pool reuses a set of open connections instead of
   opening/closing one per request, which is much faster.
 
-## What's next (Phase 2)
-Q&A forum: post CRUD, flag system, moderation workflow (draft → moderator
-approves → published), and the React frontend.
+## Phase 2: Q&A Forum
+
+Adds posts, responses, and flags — the 3-step content workflow:
+responder drafts a response → moderator approves or rejects → published.
+
+### New API Endpoints
+
+| Method | Route | Auth | Description |
+|--------|-------|------|-------------|
+| POST | `/api/posts` | Any logged-in user | Create a post |
+| GET | `/api/posts` | Any logged-in user | List all posts with their approved responses |
+| GET | `/api/posts/:id` | Any logged-in user | Get one post with approved responses |
+| DELETE | `/api/posts/:id` | Owner, or moderator/admin | Delete a post |
+| POST | `/api/posts/:postId/responses` | responder | Draft a response (starts as `draft`, hidden from patients) |
+| GET | `/api/responses/pending` | moderator, admin | View the moderation queue |
+| PATCH | `/api/responses/:id/approve` | moderator, admin | Approve a draft response → becomes visible |
+| PATCH | `/api/responses/:id/reject` | moderator, admin | Reject a draft response → stays hidden |
+| POST | `/api/posts/:postId/flags` | Any logged-in user | Flag a post as harmful |
+| GET | `/api/flags/pending` | moderator, admin | View unreviewed flags |
+| PATCH | `/api/flags/:id/review` | moderator, admin | Mark a flag reviewed; optionally delete the post |
+
+### Example: full workflow
+
+```bash
+# 1. Patient creates a post
+curl -X POST http://localhost:3000/api/posts \
+  -H "Authorization: Bearer <patient_token>" -H "Content-Type: application/json" \
+  -d '{"title":"Feeling anxious lately","content":"..."}'
+
+# 2. Responder drafts a response (starts hidden)
+curl -X POST http://localhost:3000/api/posts/1/responses \
+  -H "Authorization: Bearer <responder_token>" -H "Content-Type: application/json" \
+  -d '{"content":"Have you tried grounding exercises?"}'
+
+# 3. Moderator approves it — NOW it becomes visible
+curl -X PATCH http://localhost:3000/api/responses/1/approve \
+  -H "Authorization: Bearer <moderator_token>"
+
+# 4. Anyone can flag a post
+curl -X POST http://localhost:3000/api/posts/1/flags \
+  -H "Authorization: Bearer <any_user_token>" -H "Content-Type: application/json" \
+  -d '{"reason":"..."}'
+```
+
+### Architecture decisions (Phase 2)
+
+- **Why does approval-gating happen in the query, not a separate "hidden" flag?**
+  `getAllPosts`/`getPostById` only ever `SELECT ... WHERE r.status = 'approved'`
+  for responses. A draft or rejected response is *never even fetched* for a
+  patient's view — not hidden by the frontend, genuinely excluded at the
+  database query level. This is more secure: there's no risk of accidentally
+  exposing draft content because a UI check was missed somewhere.
+- **Why is the ownership check for deleting a post in the controller, not middleware?**
+  `requireRole()` can only check "what's your role" — it doesn't know about
+  a specific post's owner. "Can this user delete THIS post" depends on data
+  (`posts.user_id`), not just the role on their JWT, so that check happens
+  after fetching the post inside the controller.
+- **Why a separate `flags` table instead of just a boolean on `posts`?**
+  A boolean would tell you a post *is* flagged, but not *who* flagged it,
+  *why*, or *when* — and a post could be flagged by multiple people for
+  different reasons. The `is_flagged` boolean on `posts` is a fast lookup
+  for "should this show a warning in the UI", while `flags` is the full
+  audit trail moderators actually review.
+
+## What's next (Phase 3)
+Self-assessments (GAD7/PHQ9), score history, resources page, and the doctor
+dashboard using the analytics database.
