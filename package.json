@@ -1,0 +1,26 @@
+{
+  "name": "mental-health-app",
+  "version": "1.0.0",
+  "description": "A self-help therapy platform with forums, assessments, expert chat and AI screening.",
+  "main": "mood.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NNM-21/mental-health-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/NNM-21/mental-health-app/issues"
+  },
+  "homepage": "https://github.com/NNM-21/mental-health-app#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "morgan": "^1.11.0"
+  }
+}
