@@ -4,6 +4,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swagger');
 const authRoutes = require('./routes/authRoutes');
 const forumRoutes = require('./routes/forumRoutes');
 const wellnessRoutes = require('./routes/wellnessRoutes');
@@ -12,6 +14,12 @@ const app = express();
 
 app.use(cors());          // allows the React frontend (different port) to call this API
 app.use(express.json());  // parses incoming JSON request bodies into req.body
+
+// Interactive API docs — generated from JSDoc comments above each route,
+// so the docs live next to the code they describe and are less likely to
+// drift out of sync as routes change.
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get('/api-docs.json', (req, res) => res.json(swaggerSpec));
 
 // Health check — useful to confirm the server is alive without hitting real logic
 app.get('/health', (req, res) => {

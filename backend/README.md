@@ -210,6 +210,26 @@ separate the analytics database, likely with a scheduled anonymized sync
 job feeding it. Naming this tradeoff, rather than pretending the simpler
 version is the final architecture, is itself a good interview answer.
 
+## API Documentation (Swagger)
+
+Interactive, always-in-sync API docs generated from JSDoc comments above each
+route. Once the server is running, open:
+
+```
+http://localhost:3000/api-docs        (local)
+https://mental-health-app-1-a5qo.onrender.com/api-docs   (live)
+```
+
+This shows every endpoint across all three phases (18 total), grouped by tag
+(Auth, Forum, Wellness), with a "Try it out" button that lets you send real
+requests directly from the browser — no Postman needed for quick checks.
+
+**Why generate docs from code comments instead of a separate document?**
+A standalone docs file drifts out of sync the moment a route changes and
+nobody remembers to update it. JSDoc comments live directly above the route
+they describe, in the same file — when the route changes, the doc comment
+is right there to update in the same diff.
+
 ## What's next (Phase 4)
 Real-time expert chat (Socket.io) and AI-powered content screening
 (Anthropic API) for the forum.
