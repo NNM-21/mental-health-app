@@ -1,8 +1,10 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Phone } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const NAV_LINKS = [
   { to: '/dashboard', label: 'Home' },
+  { to: '/assessments', label: 'Self-Assessment' },
   { to: '/forum', label: 'Community' },
 ];
 
@@ -66,6 +68,22 @@ export default function Navbar() {
         </nav>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <Link
+            to="/emergency"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '13px',
+              fontWeight: 700,
+              color: 'var(--emergency)',
+              background: 'var(--emergency-bg)',
+              borderRadius: '8px',
+              padding: '7px 12px',
+            }}
+          >
+            <Phone size={13} /> Emergency
+          </Link>
           <span style={{ fontSize: '13.5px', color: 'var(--text-secondary)' }}>
             {user?.name?.split(' ')[0]} · <span style={{ color: 'var(--teal)', fontWeight: 600 }}>{user?.role}</span>
           </span>

@@ -7,6 +7,11 @@ import Dashboard from './pages/Dashboard';
 import Forum from './pages/Forum';
 import AskQuestion from './pages/AskQuestion';
 import PostDetail from './pages/PostDetail';
+import Assessments from './pages/Assessments';
+import TakeAssessment from './pages/TakeAssessment';
+import AssessmentResult from './pages/AssessmentResult';
+import AssessmentHistory from './pages/AssessmentHistory';
+import EmergencyHelp from './pages/EmergencyHelp';
 
 export default function App() {
   return (
@@ -45,6 +50,46 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <PostDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/assessments"
+            element={
+              <ProtectedRoute>
+                <Assessments />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/assessments/history"
+            element={
+              <ProtectedRoute>
+                <AssessmentHistory />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/assessments/:type/result"
+            element={
+              <ProtectedRoute>
+                <AssessmentResult />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/assessments/:type"
+            element={
+              <ProtectedRoute>
+                <TakeAssessment />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/emergency"
+            element={
+              <ProtectedRoute>
+                <EmergencyHelp />
               </ProtectedRoute>
             }
           />
