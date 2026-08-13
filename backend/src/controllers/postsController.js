@@ -3,6 +3,7 @@
 // owner (or a moderator/admin) can delete it.
 
 const pool = require('../config/db');
+const { screenPost } = require('../aiScreeningService');
 
 async function createPost(req, res) {
   try {
@@ -19,6 +20,13 @@ async function createPost(req, res) {
        RETURNING id, user_id, title, content, is_flagged, created_at`,
       [userId, title, content]
     );
+
+    // Deliberately NOT awaited — the post is already live and the response
+    // is already going out. Screening happens in the background; if it
+    // finds a problem, the post gets auto-flagged a moment later. This is
+    // the "async AI screening" pattern from the project guide: the user's
+    // experience is never slowed down by the AI call.
+    screenPost(result.rows[0].id, `${title}\n\n${content}`);
 
     res.status(201).json(result.rows[0]);
   } catch (err) {

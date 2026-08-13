@@ -1,5 +1,5 @@
-// wellnessRoutes.js — assessments, score history, resources, and the
-// PII-free analytics dashboard for doctors/admins.
+// wellnessRoutes.js — assessments, score history, resources, emergency
+// contacts, and the PII-free analytics dashboard for doctors/admins.
 
 const express = require('express');
 const router = express.Router();
@@ -8,13 +8,51 @@ const requireRole = require('../middleware/roles');
 
 const { getAssessments, submitScore, getMyScores, getAnalytics } = require('../controllers/assessmentsController');
 const { getResources, createResource } = require('../controllers/resourcesController');
+const { getEmergencyContacts } = require('../controllers/emergencyController');
+const { getForumAnalytics, getChatAnalytics } = require('../controllers/doctorAnalyticsController');
 
 /**
  * @swagger
  * tags:
  *   name: Wellness
- *   description: GAD7/PHQ9 assessments, score history, resources, and PII-free analytics
+ *   description: GAD7/PHQ9 assessments, score history, resources, emergency contacts, and PII-free analytics
  */
+
+/**
+ * @swagger
+ * /api/emergency-contacts:
+ *   get:
+ *     summary: List crisis helpline contacts. Public — no login required.
+ *     tags: [Wellness]
+ *     security: []
+ *     responses:
+ *       200: { description: Array of emergency contacts }
+ */
+router.get('/emergency-contacts', getEmergencyContacts);
+
+/**
+ * @swagger
+ * /api/analytics/forum:
+ *   get:
+ *     summary: Aggregated forum activity — NO post content or author names (doctor/admin only)
+ *     tags: [Wellness]
+ *     responses:
+ *       200: { description: Post/response counts, fully anonymized }
+ *       403: { description: Caller is not a doctor/admin }
+ */
+router.get('/analytics/forum', authenticate, requireRole('doctor', 'admin'), getForumAnalytics);
+
+/**
+ * @swagger
+ * /api/analytics/chat:
+ *   get:
+ *     summary: Aggregated chat activity — NO message content or participant identities (doctor/admin only)
+ *     tags: [Wellness]
+ *     responses:
+ *       200: { description: Session/message counts, fully anonymized }
+ *       403: { description: Caller is not a doctor/admin }
+ */
+router.get('/analytics/chat', authenticate, requireRole('doctor', 'admin'), getChatAnalytics);
 
 /**
  * @swagger

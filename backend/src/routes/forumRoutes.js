@@ -36,20 +36,22 @@ const { createFlag, getPendingFlags, reviewFlag } = require('../controllers/flag
  *     responses:
  *       201: { description: Post created }
  *   get:
- *     summary: List all posts, each with its approved responses only
+ *     summary: List all posts, each with its approved responses only. Public — no login required.
  *     tags: [Forum]
+ *     security: []
  *     responses:
  *       200: { description: Array of posts }
  */
 router.post('/posts', authenticate, createPost);
-router.get('/posts', authenticate, getAllPosts);
+router.get('/posts', getAllPosts);
 
 /**
  * @swagger
  * /api/posts/{id}:
  *   get:
- *     summary: Get one post with its approved responses
+ *     summary: Get one post with its approved responses. Public — no login required.
  *     tags: [Forum]
+ *     security: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -70,7 +72,7 @@ router.get('/posts', authenticate, getAllPosts);
  *       200: { description: Deleted }
  *       403: { description: Not the owner and not a moderator/admin }
  */
-router.get('/posts/:id', authenticate, getPostById);
+router.get('/posts/:id', getPostById);
 router.delete('/posts/:id', authenticate, deletePost);
 
 /**

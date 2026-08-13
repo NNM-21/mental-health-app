@@ -230,6 +230,102 @@ nobody remembers to update it. JSDoc comments live directly above the route
 they describe, in the same file — when the route changes, the doc comment
 is right there to update in the same diff.
 
-## What's next (Phase 4)
-Real-time expert chat (Socket.io) and AI-powered content screening
-(Anthropic API) for the forum.
+## Phase 4: Real-Time Expert Chat + AI Content Screening
+
+### Real-time chat (Socket.io)
+
+REST handles setup/history; live message delivery happens over Socket.io.
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | `/api/chat/sessions` | Patient starts a session with a responder or doctor |
+| GET | `/api/chat/sessions` | List sessions you're a participant in |
+| GET | `/api/chat/sessions/:id/messages` | Full message history (participants only) |
+| PATCH | `/api/chat/sessions/:id/end` | End a session |
+
+**Socket.io events** (connect with `{ auth: { token: '<jwt>' } }`):
+
+```js
+// Client-side example
+const socket = io('http://localhost:3000', { auth: { token: myJwt } });
+socket.emit('join_session', sessionId);
+socket.on('joined_session', () => { /* ready */ });
+socket.emit('send_message', { sessionId, content: 'Hello' });
+socket.on('new_message', (msg) => { /* render it */ });
+```
+
+Verified end-to-end: two real socket connections (patient + expert), joined
+the same session room, exchanged messages live with zero polling, and
+confirmed both messages were persisted to the database afterward via the
+REST history endpoint.
+
+### AI content screening (Gemini API)
+
+Every new post is sent to Gemini for classification (`safe` / `harmful` /
+`crisis`) in the background, **without** blocking the post from going live
+immediately. If flagged, the post is automatically added to the same
+moderator flag queue built in Phase 2 — no separate review system needed.
+
+Requires `GEMINI_API_KEY` in your `.env` (see `.env.example`). Get a free
+key at [aistudio.google.com](https://aistudio.google.com) — the free tier
+(15 requests/minute, 1500/day on `gemini-2.5-flash`) is more than enough
+for this project, no card required.
+
+### Architecture decisions (Phase 4)
+
+- **Why Socket.io instead of polling?** HTTP is request-response only — a
+  client would have to repeatedly ask "any new messages?" Socket.io keeps a
+  persistent connection open so the server can push a message the instant
+  it arrives.
+- **Why does the socket connection require the same JWT as REST routes?**
+  Real-time doesn't mean less secure — every socket connection is
+  authenticated exactly like an HTTP request, just once at connect time via
+  `io.use()` middleware instead of per-request.
+- **Why persist a message to the database BEFORE broadcasting it?** If a
+  client disconnected right after sending, an unpersisted "fire and forget"
+  broadcast would silently lose that message forever. Saving first means
+  the database stays the source of truth; the live push is a convenience
+  layer on top of a durable record.
+- **Why is AI screening fire-and-forget (not awaited)?** The whole point,
+  per the project guide, is that screening never slows down the user's
+  experience of posting. The tradeoff: a harmful post is visible for a few
+  seconds before auto-flagging catches it — acceptable given the
+  alternative (blocking every post on an external API call) is worse UX.
+- **Why does a screening failure never crash the request?** The post has
+  already been created and the response already sent by the time screening
+  runs. A wrapped try/catch inside `screenPost()` ensures an API outage or
+  bad key degrades gracefully (post just isn't classified) rather than
+  taking anything else down — verified by intentionally testing with an
+  invalid key and confirming the server stayed fully responsive.
+
+## Spec Alignment Fixes
+
+Compared against the original project requirements, three gaps were found
+and fixed:
+
+1. **Public forum read access** — `GET /api/posts` and `GET /api/posts/:id`
+   no longer require login. The spec states "anyone can view posts and
+   responses" — a visitor should be able to browse without registering.
+   Creating posts, drafting responses, and flagging still require auth,
+   since those actions must be tied to a specific user.
+
+2. **Emergency helpline** (`GET /api/emergency-contacts`, public) — real,
+   verified Indian national mental health helplines: Tele MANAS (14416,
+   24x7), KIRAN (1800-599-0019, 24x7), and iCall (9152987821, TISS). This
+   is deliberately separate from the Phase 4 expert chat — a crisis contact
+   needs to be reachable in one click, with zero friction, not gated behind
+   matching with an available expert.
+
+3. **Doctor visibility across the WHOLE app, not just assessments** — the
+   spec says a senior doctor sees everything except patient-identifiable
+   information. Phase 3 only satisfied this for assessment scores.
+   `GET /api/analytics/forum` and `GET /api/analytics/chat` extend the same
+   pattern: aggregate counts only (post volume, flag rates, response
+   status breakdown, session/message counts) — never post content, never
+   author names, never message content, never who talked to whom.
+
+## What's next
+The backend now covers all 4 phases plus the spec-alignment fixes above.
+Remaining: the React frontend (not yet built for any phase), multi-lingual
+and accessibility support (largely a frontend concern), and Docker Compose
+(Section 13 of the original guide).
