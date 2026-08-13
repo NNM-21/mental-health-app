@@ -12,6 +12,7 @@ import TakeAssessment from './pages/TakeAssessment';
 import AssessmentResult from './pages/AssessmentResult';
 import AssessmentHistory from './pages/AssessmentHistory';
 import EmergencyHelp from './pages/EmergencyHelp';
+import Resources from './pages/Resources';
 
 export default function App() {
   return (
@@ -90,6 +91,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <EmergencyHelp />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/resources"
+            element={
+              <ProtectedRoute>
+                <Resources />
               </ProtectedRoute>
             }
           />

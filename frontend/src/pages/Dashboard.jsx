@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MessageCircle, Brain } from 'lucide-react';
+import { MessageCircle, Brain, BookOpen } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import AppLayout from '../components/AppLayout';
 import Card from '../components/Card';
@@ -65,6 +65,12 @@ export default function Dashboard() {
           icon={<Brain size={20} color="var(--teal)" />}
           title="Take a Self-Assessment"
           subtitle="GAD-7 or PHQ-9 screening"
+        />
+        <QuickAction
+          to="/resources"
+          icon={<BookOpen size={20} color="var(--teal)" />}
+          title="Explore Resources"
+          subtitle="Curated articles &amp; videos"
         />
         <QuickAction
           to="/forum"

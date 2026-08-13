@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { Phone, MessageCircle, History } from 'lucide-react';
+import { Phone, BookOpen, MessageCircle, History } from 'lucide-react';
 import AppLayout from '../components/AppLayout';
 import Card from '../components/Card';
 
@@ -135,6 +135,23 @@ export default function AssessmentResult() {
           What you can do
         </h4>
         <div style={{ display: 'grid', gap: '10px' }}>
+          <Link
+            to="/resources"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '12px 14px',
+              borderRadius: '10px',
+              border: '1px solid var(--border)',
+              fontSize: '13.5px',
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              textAlign: 'left',
+            }}
+          >
+            <BookOpen size={16} color="var(--teal)" /> Explore related resources
+          </Link>
           <Link
             to="/forum"
             style={{
