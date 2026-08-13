@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --teal: #164E63;
+  --teal-hover: #123f50;
+  --sage: #A7C7B7;
+  --sage-light: #EAF2ED;
+  --bg: #F8FAF8;
+  --card: #FFFFFF;
+  --lavender: #C4B5FD;
+  --emergency: #B91C1C;
+  --emergency-bg: #FDECEC;
+  --text-primary: #1F2937;
+  --text-secondary: #64748B;
+  --text-muted: #94A3B8;
+  --border: #E5E9E7;
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+
+  --shadow-card: 0 1px 2px rgba(22, 78, 99, 0.04), 0 4px 16px rgba(22, 78, 99, 0.06);
+  --shadow-card-hover: 0 2px 4px rgba(22, 78, 99, 0.06), 0 12px 28px rgba(22, 78, 99, 0.1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .display {
+  font-family: 'Manrope', sans-serif;
+}
+
+a { color: inherit; text-decoration: none; }
+
+button { font-family: inherit; cursor: pointer; }
+
+input, select, textarea { font-family: inherit; }
+
+::selection { background: var(--lavender); color: var(--text-primary); }
+
+/* Focus visibility for accessibility */
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
