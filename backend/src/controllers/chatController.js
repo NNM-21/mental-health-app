@@ -119,4 +119,22 @@ async function endSession(req, res) {
   }
 }
 
-module.exports = { startSession, getSessionMessages, getMySessions, endSession };
+// List patient-facing experts (responders and doctors) available to start
+// a chat session with. Only safe, minimal fields are returned — no email,
+// no password hash — since this is visible to any authenticated patient.
+async function getAvailableExperts(req, res) {
+  try {
+    const result = await pool.query(
+      `SELECT id, name, role
+       FROM users
+       WHERE role IN ('responder', 'doctor')
+       ORDER BY name ASC`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Get available experts error:', err.message);
+    res.status(500).json({ error: 'Something went wrong fetching available experts.' });
+  }
+}
+
+module.exports = { startSession, getSessionMessages, getMySessions, endSession, getAvailableExperts };

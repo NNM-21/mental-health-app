@@ -13,6 +13,9 @@ import AssessmentResult from './pages/AssessmentResult';
 import AssessmentHistory from './pages/AssessmentHistory';
 import EmergencyHelp from './pages/EmergencyHelp';
 import Resources from './pages/Resources';
+import Professionals from './pages/Professionals';
+import Conversations from './pages/Conversations';
+import ChatSession from './pages/ChatSession';
 
 export default function App() {
   return (
@@ -99,6 +102,30 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Resources />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/professionals"
+            element={
+              <ProtectedRoute>
+                <Professionals />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/conversations"
+            element={
+              <ProtectedRoute>
+                <Conversations />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chat/:id"
+            element={
+              <ProtectedRoute>
+                <ChatSession />
               </ProtectedRoute>
             }
           />

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MessageCircle, Brain, BookOpen } from 'lucide-react';
+import { MessageCircle, Brain, BookOpen, Stethoscope } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import AppLayout from '../components/AppLayout';
 import Card from '../components/Card';
@@ -77,6 +77,12 @@ export default function Dashboard() {
           icon={<MessageCircle size={20} color="var(--teal)" />}
           title="Ask the Community"
           subtitle="Browse Q&amp;A or ask your own question"
+        />
+        <QuickAction
+          to="/professionals"
+          icon={<Stethoscope size={20} color="var(--teal)" />}
+          title="Talk to a Professional"
+          subtitle="Chat with a responder or doctor"
         />
       </div>
     </AppLayout>

@@ -1,12 +1,14 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Phone } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { disconnectSocket } from '../lib/socket';
 
 const NAV_LINKS = [
   { to: '/dashboard', label: 'Home' },
   { to: '/resources', label: 'Resources' },
   { to: '/assessments', label: 'Self-Assessment' },
   { to: '/forum', label: 'Community' },
+  { to: '/professionals', label: 'Professionals' },
 ];
 
 export default function Navbar() {
@@ -15,6 +17,7 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    disconnectSocket();
     logout();
     navigate('/login', { replace: true });
   };

@@ -4,14 +4,23 @@
 const express = require('express');
 const router = express.Router();
 const authenticate = require('../middleware/auth');
-const { startSession, getSessionMessages, getMySessions, endSession } = require('../controllers/chatController');
-
+const { startSession, getSessionMessages, getMySessions, endSession, getAvailableExperts } = require('../controllers/chatController');
 /**
  * @swagger
  * tags:
  *   name: Chat
  *   description: Real-time expert chat sessions (REST for setup/history, Socket.io for live messages)
  */
+/**
+ * @swagger
+ * /api/chat/experts:
+ *   get:
+ *     summary: List available experts (responders and doctors) to start a chat with
+ *     tags: [Chat]
+ *     responses:
+ *       200: { description: Array of experts (id, name, role) }
+ */
+router.get('/chat/experts', authenticate, getAvailableExperts);
 
 /**
  * @swagger
