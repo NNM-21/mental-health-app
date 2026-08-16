@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Phone, ShieldCheck, BarChart3 } from 'lucide-react';
+import { Phone, ShieldCheck, BarChart3, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { disconnectSocket } from '../lib/socket';
 
@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { to: '/assessments', label: 'Self-Assessment' },
   { to: '/forum', label: 'Community' },
   { to: '/professionals', label: 'Professionals' },
+  { to: '/checkin', label: 'Check-In', icon: Sparkles },
 ];
 
 // Extra links only shown to the roles that can use them. Patients and
@@ -63,11 +64,15 @@ export default function Navbar() {
         <nav style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
           {NAV_LINKS.map((link) => {
             const active = location.pathname.startsWith(link.to);
+            const Icon = link.icon;
             return (
               <Link
                 key={link.to}
                 to={link.to}
                 style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
                   fontSize: '14.5px',
                   fontWeight: 600,
                   color: active ? 'var(--teal)' : 'var(--text-secondary)',
@@ -75,7 +80,7 @@ export default function Navbar() {
                   borderBottom: active ? '2px solid var(--teal)' : '2px solid transparent',
                 }}
               >
-                {link.label}
+                {Icon && <Icon size={14} />} {link.label}
               </Link>
             );
           })}

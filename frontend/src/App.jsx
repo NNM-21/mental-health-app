@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleProtectedRoute from './components/RoleProtectedRoute';
@@ -19,11 +19,12 @@ import Conversations from './pages/Conversations';
 import ChatSession from './pages/ChatSession';
 import ModeratorDashboard from './pages/ModeratorDashboard';
 import DoctorDashboard from './pages/DoctorDashboard';
+import WellnessCheckin from './pages/WellnessCheckin';
 
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
@@ -148,8 +149,16 @@ export default function App() {
               </RoleProtectedRoute>
             }
           />
+          <Route
+            path="/checkin"
+            element={
+              <ProtectedRoute>
+                <WellnessCheckin />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </AuthProvider>
   );
 }

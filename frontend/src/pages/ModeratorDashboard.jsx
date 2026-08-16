@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CheckCircle2, XCircle, AlertTriangle, Trash2, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertTriangle, Trash2, ShieldCheck, HeartPulse } from 'lucide-react';
 import AppLayout from '../components/AppLayout';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -10,13 +10,15 @@ import {
   getPendingFlags,
   reviewFlag,
 } from '../services/forumService';
+import { getPendingCheckinAlerts, reviewCheckinAlert } from '../services/checkinService';
 import { timeAgo } from '../lib/timeAgo';
 
 export default function ModeratorDashboard() {
-  const [tab, setTab] = useState('responses'); // 'responses' | 'flags'
+  const [tab, setTab] = useState('responses'); // 'responses' | 'flags' | 'checkins'
 
   const [responses, setResponses] = useState(null);
   const [flags, setFlags] = useState(null);
+  const [checkinAlerts, setCheckinAlerts] = useState(null);
   const [error, setError] = useState(null);
   const [actingId, setActingId] = useState(null);
 
@@ -28,6 +30,9 @@ export default function ModeratorDashboard() {
     getPendingFlags()
       .then(setFlags)
       .catch(() => setError('Could not load the flag queue right now.'));
+    getPendingCheckinAlerts()
+      .then(setCheckinAlerts)
+      .catch(() => setError('Could not load wellness check-in alerts right now.'));
   };
 
   useEffect(() => {
@@ -59,8 +64,21 @@ export default function ModeratorDashboard() {
     }
   };
 
+  const handleCheckinReview = async (id) => {
+    setActingId(id);
+    try {
+      await reviewCheckinAlert(id);
+      setCheckinAlerts((prev) => prev.filter((c) => c.id !== id));
+    } catch {
+      setError('Could not mark that check-in reviewed. Please try again.');
+    } finally {
+      setActingId(null);
+    }
+  };
+
   const responseCount = responses?.length ?? '–';
   const flagCount = flags?.length ?? '–';
+  const checkinCount = checkinAlerts?.length ?? '–';
 
   return (
     <AppLayout>
@@ -69,7 +87,7 @@ export default function ModeratorDashboard() {
           Moderator Dashboard
         </h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '15px' }}>
-          Review responder drafts before they go live, and act on flagged content.
+          Review responder drafts, act on flagged content, and follow up on wellness check-in alerts.
         </p>
       </div>
 
@@ -86,6 +104,9 @@ export default function ModeratorDashboard() {
         </TabButton>
         <TabButton active={tab === 'flags'} onClick={() => setTab('flags')}>
           Flagged Content ({flagCount})
+        </TabButton>
+        <TabButton active={tab === 'checkins'} onClick={() => setTab('checkins')}>
+          Wellness Alerts ({checkinCount})
         </TabButton>
       </div>
 
@@ -176,6 +197,48 @@ export default function ModeratorDashboard() {
                   <Trash2 size={16} /> Delete Post
                 </Button>
               </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {tab === 'checkins' && (
+        <div style={{ display: 'grid', gap: '14px' }}>
+          {checkinAlerts === null && !error && <SkeletonCards />}
+          {checkinAlerts?.length === 0 && (
+            <Card style={{ padding: '36px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+              <ShieldCheck size={22} style={{ marginBottom: '8px', color: 'var(--sage)' }} />
+              <p>No wellness check-ins need review right now.</p>
+            </Card>
+          )}
+          {checkinAlerts?.map((c) => (
+            <Card
+              key={c.id}
+              style={{ padding: '20px 22px', background: 'var(--emergency-bg)', border: '1px solid var(--emergency)' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <HeartPulse size={15} style={{ color: 'var(--emergency)' }} />
+                <span style={{ fontSize: '14px', fontWeight: 700 }}>
+                  {c.user_name} ({c.user_email})
+                </span>
+                <span style={{ fontSize: '12.5px', color: 'var(--text-muted)', marginLeft: 'auto' }}>
+                  {timeAgo(c.created_at)}
+                </span>
+              </div>
+              <p style={{ fontSize: '14px', color: 'var(--text-primary)', marginBottom: '6px' }}>
+                {c.content}
+              </p>
+              <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', marginBottom: '16px' }}>
+                AI classification: {c.ai_classification ?? 'unclassified (AI call failed — needs a closer look)'}
+              </p>
+              <Button
+                variant="primary"
+                disabled={actingId === c.id}
+                onClick={() => handleCheckinReview(c.id)}
+                style={{ width: 'auto', display: 'inline-flex', background: 'var(--emergency)' }}
+              >
+                <CheckCircle2 size={16} /> Mark reviewed
+              </Button>
             </Card>
           ))}
         </div>
