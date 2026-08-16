@@ -32,3 +32,32 @@ export async function flagPost(postId, { reason }) {
   const { data } = await api.post(`/api/posts/${postId}/flags`, { reason });
   return data;
 }
+
+// --- Moderator/admin: response moderation queue ---
+// Pending response item: { id, content, status, created_at, post_title, responder_name }
+export async function getPendingResponses() {
+  const { data } = await api.get('/api/responses/pending');
+  return data;
+}
+
+export async function approveResponse(id) {
+  const { data } = await api.patch(`/api/responses/${id}/approve`);
+  return data;
+}
+
+export async function rejectResponse(id) {
+  const { data } = await api.patch(`/api/responses/${id}/reject`);
+  return data;
+}
+
+// --- Moderator/admin: flag review queue ---
+// Pending flag item: { id, reason, created_at, post_id, post_title, post_content, flagged_by_name }
+export async function getPendingFlags() {
+  const { data } = await api.get('/api/flags/pending');
+  return data;
+}
+
+export async function reviewFlag(id, { deletePost = false } = {}) {
+  const { data } = await api.patch(`/api/flags/${id}/review`, { deletePost });
+  return data;
+}

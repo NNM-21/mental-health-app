@@ -1,17 +1,24 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Flag, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Flag, AlertTriangle, Send } from 'lucide-react';
 import AppLayout from '../components/AppLayout';
 import Card from '../components/Card';
+import Button from '../components/Button';
 import FlagModal from '../components/FlagModal';
-import { getPost, flagPost } from '../services/forumService';
+import { getPost, flagPost, draftResponse } from '../services/forumService';
 import { timeAgo } from '../lib/timeAgo';
+import { useAuth } from '../context/AuthContext';
 
 export default function PostDetail() {
   const { id } = useParams();
+  const { user } = useAuth();
   const [post, setPost] = useState(null);
   const [error, setError] = useState(null);
   const [showFlag, setShowFlag] = useState(false);
+  const [draftContent, setDraftContent] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [draftSubmitted, setDraftSubmitted] = useState(false);
+  const [draftError, setDraftError] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -35,6 +42,22 @@ export default function PostDetail() {
 
   const handleFlagSubmit = async (reason) => {
     await flagPost(id, { reason });
+  };
+
+  const handleDraftSubmit = async (e) => {
+    e.preventDefault();
+    if (!draftContent.trim()) return;
+    setSubmitting(true);
+    setDraftError(null);
+    try {
+      await draftResponse(id, { content: draftContent.trim() });
+      setDraftContent('');
+      setDraftSubmitted(true);
+    } catch {
+      setDraftError('Could not submit your response. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (error) {
@@ -153,6 +176,57 @@ export default function PostDetail() {
           </Card>
         ))}
       </div>
+
+      {/* Responders draft here. Drafts stay hidden (status: 'draft') until a
+          moderator approves them — they won't appear in the list above yet. */}
+      {user?.role === 'responder' && (
+        <Card style={{ padding: '22px 24px', marginTop: '20px' }}>
+          <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '10px' }}>
+            Draft a response
+          </h3>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '14px' }}>
+            Your response goes to a moderator for approval before it's visible to the patient.
+          </p>
+
+          {draftSubmitted && (
+            <p style={{ fontSize: '13.5px', color: 'var(--teal)', fontWeight: 600, marginBottom: '12px' }}>
+              Draft submitted — it's now in the moderator queue.
+            </p>
+          )}
+          {draftError && (
+            <p style={{ fontSize: '13.5px', color: 'var(--emergency)', marginBottom: '12px' }}>
+              {draftError}
+            </p>
+          )}
+
+          <form onSubmit={handleDraftSubmit}>
+            <textarea
+              value={draftContent}
+              onChange={(e) => setDraftContent(e.target.value)}
+              placeholder="Write a thoughtful, supportive response..."
+              rows={5}
+              style={{
+                width: '100%',
+                padding: '12px 14px',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--border)',
+                fontSize: '14px',
+                fontFamily: 'inherit',
+                resize: 'vertical',
+                marginBottom: '14px',
+              }}
+            />
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={submitting || !draftContent.trim()}
+              style={{ width: 'auto', display: 'inline-flex' }}
+            >
+              <Send size={15} /> {submitting ? 'Submitting...' : 'Submit draft'}
+            </Button>
+          </form>
+        </Card>
+      )}
 
       {showFlag && <FlagModal onClose={() => setShowFlag(false)} onSubmit={handleFlagSubmit} />}
     </AppLayout>

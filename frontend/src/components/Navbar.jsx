@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Phone } from 'lucide-react';
+import { Phone, ShieldCheck, BarChart3 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { disconnectSocket } from '../lib/socket';
 
@@ -11,10 +11,20 @@ const NAV_LINKS = [
   { to: '/professionals', label: 'Professionals' },
 ];
 
+// Extra links only shown to the roles that can use them. Patients and
+// responders never see these — they're not gated in the UI for looks,
+// the routes themselves are role-protected too (see App.jsx).
+const ROLE_LINKS = [
+  { to: '/moderation', label: 'Moderation', roles: ['moderator', 'admin'], icon: ShieldCheck },
+  { to: '/analytics', label: 'Analytics', roles: ['doctor', 'admin'], icon: BarChart3 },
+];
+
 export default function Navbar() {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const visibleRoleLinks = ROLE_LINKS.filter((link) => link.roles.includes(user?.role));
 
   const handleLogout = () => {
     disconnectSocket();
@@ -66,6 +76,28 @@ export default function Navbar() {
                 }}
               >
                 {link.label}
+              </Link>
+            );
+          })}
+          {visibleRoleLinks.map((link) => {
+            const active = location.pathname.startsWith(link.to);
+            const Icon = link.icon;
+            return (
+              <Link
+                key={link.to}
+                to={link.to}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  fontSize: '14.5px',
+                  fontWeight: 600,
+                  color: active ? 'var(--teal)' : 'var(--text-secondary)',
+                  paddingBottom: '2px',
+                  borderBottom: active ? '2px solid var(--teal)' : '2px solid transparent',
+                }}
+              >
+                <Icon size={14} /> {link.label}
               </Link>
             );
           })}

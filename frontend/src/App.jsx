@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import RoleProtectedRoute from './components/RoleProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -16,6 +17,8 @@ import Resources from './pages/Resources';
 import Professionals from './pages/Professionals';
 import Conversations from './pages/Conversations';
 import ChatSession from './pages/ChatSession';
+import ModeratorDashboard from './pages/ModeratorDashboard';
+import DoctorDashboard from './pages/DoctorDashboard';
 
 export default function App() {
   return (
@@ -127,6 +130,22 @@ export default function App() {
               <ProtectedRoute>
                 <ChatSession />
               </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/moderation"
+            element={
+              <RoleProtectedRoute allowedRoles={['moderator', 'admin']}>
+                <ModeratorDashboard />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="/analytics"
+            element={
+              <RoleProtectedRoute allowedRoles={['doctor', 'admin']}>
+                <DoctorDashboard />
+              </RoleProtectedRoute>
             }
           />
         </Routes>
